@@ -19,7 +19,7 @@ Este proyecto integra el consumo de APIs externas, persistencia de datos local, 
 
 ## 🛠️ Stack Tecnológico
 - **Lenguaje:** Java ☕
-- **Entorno:** Android Studio Dolphin / Flamingo
+- **Entorno:** Android Studio
 - **Red:** Retrofit 2 (JSON parsing)
 - **Base de Datos:** SQLite (Arquitectura de 3 tablas: Usuarios, Presets, Historial)
 - **Pruebas:** JUnit 4 (10 Tests unitarios y pruebas de integración)
