@@ -29,4 +29,4 @@ Este proyecto integra el consumo de APIs externas, persistencia de datos local, 
 ## 🚀 Instalación y Uso
 1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/TU_USUARIO/ComparaClima.git](https://github.com/TU_USUARIO/ComparaClima.git)
+   git clone https://github.com/MiguelAngelMarRam/ComparaClima.git
