@@ -72,15 +72,27 @@ public class UsuarioActivity extends AppCompatActivity {
     }
 
     private void mostrarGuiaInteractiva(String nombre) {
-        new AlertDialog.Builder(this)
-                .setTitle("🚀 ¡Tu viaje comienza aquí!")
-                .setMessage("Hola, " + nombre + ".\n" +
-                        "Sigue estos pasos:\n\n" +
-                        "📍 1. CONFIGURA: Tus gustos en 'Preferencias'.\n" +
-                        "🔎 2. COMPARA: Elige destinos.\n" +
-                        "📊 3. REVISA: Tu historial en la nube.\n\n" +
-                        "¿Empezamos?")
-                .setPositiveButton("¡VAMOS ALLÁ!", (dialog, which) -> dialog.dismiss())
-                .setCancelable(false).show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("🚀 ¡Tu viaje comienza aquí!");
+
+        builder.setMessage("Hola, " + nombre + ".\n" +
+                "Para sacar el máximo partido a ComparaClima, sigue estos 3 pasos:\n\n" +
+                "📍 1. CONFIGURA: Entra en 'Preferencias' y dinos qué tiempo te gusta.\n\n" +
+                "🔎 2. COMPARA: Elige dos destinos y deja que nosotros busquemos por ti.\n\n" +
+                "📊 3. REVISA: Consulta tus decisiones pasadas en el 'Historial'.\n\n" +
+                "¿Empezamos?");
+
+        builder.setIcon(android.R.drawable.ic_dialog_info);
+
+        builder.setPositiveButton("¡VAMOS ALLÁ!", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        builder.setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
     }
 }
