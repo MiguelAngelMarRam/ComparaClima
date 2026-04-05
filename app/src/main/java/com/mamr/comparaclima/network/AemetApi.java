@@ -16,17 +16,12 @@ import retrofit2.http.Query;
 import retrofit2.http.Url;
 
 public interface AemetApi {
-    // Paso 1 para Municipios: Obtener la URL donde están las ciudades
-    @GET("opendata/api/maestro/municipios")
-    Call<AemetRespuesta> getUrlMunicipios(@Query("api_key") String apiKey);
 
-    // Paso 1 para Clima: Obtener la URL donde está la predicción
+    // Clima: Obtener la URL donde está la predicción
     @GET("opendata/api/prediccion/especifica/municipio/diaria/{id}/")
     Call<AemetRespuesta> getUrlPrediccion(@Path("id") String id, @Query("api_key") String apiKey);
 
-    // Paso 2: Esta descarga la lista real de la URL que nos den (sea de ciudades o de clima)
-    @GET
-    Call<List<Municipio>> getMunicipiosReales(@Url String url);
+    // Descarga de la URL el clima
 
     @GET
     Call<List<PrediccionRespuesta>> getClimaFinal(@Url String url);

@@ -5,8 +5,11 @@ package com.mamr.comparaclima;
  * Proyecto: ComparaClima - TFG DAM
  */
 
-import android.content.SharedPreferences;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -14,12 +17,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.mamr.comparaclima.db.DatabaseHelper;
 
-/**
- * Activity para gestionar la creación y edición de los Gustos.
- * Permite al usuario definir sus umbrales climáticos ideales.
- */
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.mamr.comparaclima.models.Preset;
+
 public class AjustesGustos extends AppCompatActivity {
 
     private EditText etNombre;
@@ -27,14 +30,28 @@ public class AjustesGustos extends AppCompatActivity {
     private TextView tvTempMax, tvTempMin, tvViento, tvLluvia;
     private CheckBox cbSol;
     private Button btnGuardar;
-    private DatabaseHelper db;
+
+    // --- VARIABLES FIREBASE ---
+    private DatabaseReference mDatabase;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ajustes_gustos);
 
-        db = new DatabaseHelper(this);
+        // Comprobación inicial de red
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "Modo desconectado: los cambios se guardarán al recuperar la conexión.", Toast.LENGTH_LONG).show();
+        }
+
+        // Inicializamos Firebase Auth
+        mDatabase = FirebaseDatabase.getInstance("https://comparaclima-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        }
+
         initViews();
         setupListeners();
     }
@@ -54,7 +71,7 @@ public class AjustesGustos extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // Actualizacion dinamica de etiquetas al mover los deslizadores
+        // Actualización dinámica de etiquetas
         sbTempMax.setOnSeekBarChangeListener(new SimpleSeekBarListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 tvTempMax.setText("Temperatura Máxima Ideal: " + progress + "°C");
@@ -79,31 +96,35 @@ public class AjustesGustos extends AppCompatActivity {
             }
         });
 
-        btnGuardar.setOnClickListener(v -> guardarPreset());
+        btnGuardar.setOnClickListener(v -> guardarPresetEnFirebase());
     }
 
-    private void guardarPreset() {
+    /**
+     * Crea un objeto Preset y lo guarda en la rama 'presets' del usuario actual.
+     * Firebase usará el nombre del preset como clave (ID).
+     */
+    private void guardarPresetEnFirebase() {
         String nombre = etNombre.getText().toString().trim();
         int max = sbTempMax.getProgress();
         int min = sbTempMin.getProgress();
 
-        SharedPreferences prefs = getSharedPreferences("SESION", MODE_PRIVATE);
-        String emailUsuario = prefs.getString("email", "");
-
-        // Validaciones de entrada
+        // Validaciones básicas de lógica climática
         if (nombre.isEmpty()) {
-            Toast.makeText(this, "Ponle un nombre a tu gusto", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Ponle un nombre a tu gusto (ej: Playa)", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (min >= max) {
             Toast.makeText(this, "La mínima debe ser menor que la máxima", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Pasar los parametros a la base de datos
-        db.insertarOActualizarPreset(
-                emailUsuario,
+        // Asegurar que el userId esté disponible
+        if (userId == null && FirebaseAuth.getInstance().getCurrentUser() != null) {
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        }
+
+        // Creamos el objeto modelo
+        Preset nuevoGusto = new Preset(
                 nombre,
                 max,
                 min,
@@ -112,13 +133,27 @@ public class AjustesGustos extends AppCompatActivity {
                 cbSol.isChecked() ? 1 : 0
         );
 
-        Toast.makeText(this, "¡Gusto '" + nombre + "' guardado!", Toast.LENGTH_SHORT).show();
-        finish();
+        // GUARDADO EN FIREBASE
+        if (userId != null) {
+            mDatabase.child("users").child(userId).child("presets").child(nombre).setValue(nuevoGusto)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(AjustesGustos.this, "¡Gusto '" + nombre + "' sincronizado en la nube!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("FIREBASE_ERR", "Error: " + e.getMessage());
+                        Toast.makeText(AjustesGustos.this, "Error al guardar en la nube", Toast.LENGTH_SHORT).show();
+                    });
+        }
     }
 
-    // Clase auxiliar para no repetir código de Seekbar
     private abstract static class SimpleSeekBarListener implements SeekBar.OnSeekBarChangeListener {
         @Override public void onStartTrackingTouch(SeekBar seekBar) {}
         @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+    }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 }

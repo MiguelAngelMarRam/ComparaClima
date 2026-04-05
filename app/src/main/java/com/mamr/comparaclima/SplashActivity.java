@@ -26,12 +26,12 @@ public class SplashActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_splash);
 
-        // 1. Referencia a la imagen y carga de la animacion de zoom
+        // Referencia a la imagen y carga de la animacion de zoom
         ImageView ivSplash = findViewById(R.id.ivSplash);
         Animation zoom = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
         ivSplash.startAnimation(zoom);
 
-        // 2. Esperar 5 segundos y saltar al menu con fundido
+        // Esperar 5 segundos y saltar al menu con fundido
         new Handler().postDelayed(() -> {
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
             startActivity(intent);

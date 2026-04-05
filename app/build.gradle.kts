@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -37,6 +38,11 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    // --- FIREBASE  ---
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-auth")           // Para Login/Registro
+    implementation("com.google.firebase:firebase-database")       // Para la base de datos centralizada de ciudades
 
     // Red y Datos
     implementation("com.android.volley:volley:1.2.1")

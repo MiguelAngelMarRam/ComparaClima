@@ -1,31 +1,29 @@
 package com.mamr.comparaclima;
 
-/**
- * @author Miguel Ángel Martínez Ramírez
- * Proyecto: ComparaClima - TFG DAM
- */
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.mamr.comparaclima.db.DatabaseHelper;
-import com.mamr.comparaclima.utils.Validator; // Importamos el validador
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.mamr.comparaclima.utils.Validator;
 
 public class RegistroActivity extends AppCompatActivity {
 
     EditText etNombre, etEmail, etPassword;
     Button btnRegister;
-    DatabaseHelper db;
+    private FirebaseAuth mAuth; // Firebase Instance
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registro);
 
-        db = new DatabaseHelper(this);
+        // Inicializar Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
         etNombre = findViewById(R.id.editTextRName);
         etEmail = findViewById(R.id.editTextREmail);
@@ -37,7 +35,6 @@ public class RegistroActivity extends AppCompatActivity {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
-            // Validación de campos utilizando la clase Validator
             if (Validator.campoVacio(name) || Validator.campoVacio(email) || Validator.campoVacio(password)) {
                 Toast.makeText(this, "Rellena todos los campos", Toast.LENGTH_SHORT).show();
             } else if (!Validator.esEmailValido(email)) {
@@ -45,14 +42,29 @@ public class RegistroActivity extends AppCompatActivity {
             } else if (!Validator.esPasswordSegura(password)) {
                 Toast.makeText(this, "La contraseña debe tener al menos 8 caracteres", Toast.LENGTH_SHORT).show();
             } else {
-                // Enviamos nombre, email y password
-                if (db.registerUser(name, email, password)) {
-                    Toast.makeText(this, "¡Registro con éxito!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, LoginActivity.class));
-                    finish();
-                } else {
-                    Toast.makeText(this, "Error: El email ya existe", Toast.LENGTH_SHORT).show();
-                }
+                // REGISTRO EN FIREBASE
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                FirebaseUser user = mAuth.getCurrentUser();
+
+                                // Guardar el nombre en el perfil de Firebase
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(name).build();
+                                user.updateProfile(profileUpdates);
+
+                                // ENVIAR EMAIL DE VERIFICACIÓN
+                                user.sendEmailVerification().addOnCompleteListener(verifyTask -> {
+                                    if (verifyTask.isSuccessful()) {
+                                        Toast.makeText(this, "¡Registro con éxito! Revisa tu email para verificar la cuenta.", Toast.LENGTH_LONG).show();
+                                        startActivity(new Intent(this, LoginActivity.class));
+                                        finish();
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
             }
         });
     }

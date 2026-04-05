@@ -5,17 +5,20 @@ package com.mamr.comparaclima.models;
  * Proyecto: ComparaClima - TFG DAM
  */
 
+import com.google.firebase.database.PropertyName;
 import java.io.Serializable;
 
 public class Preset implements Serializable {
-    private final String nombre;
-    private final int tempMaxIdeal;
-    private final int tempMinIdeal;
-    private final int vientoMax;
-    private final int lluviaMax;
-    private final int requiereSol;
+    private String nombre;
+    private int tempMaxIdeal;
+    private int tempMinIdeal;
+    private int vientoMax;
+    private int lluviaMax;
+    private int requiereSol;
 
-    // Constructor completo
+    // CONSTRUCTOR VACÍO
+    public Preset() {}
+
     public Preset(String nombre, int tempMaxIdeal, int tempMinIdeal, int vientoMax, int lluviaMax, int requiereSol) {
         this.nombre = nombre;
         this.tempMaxIdeal = tempMaxIdeal;
@@ -25,17 +28,37 @@ public class Preset implements Serializable {
         this.requiereSol = requiereSol;
     }
 
-    // Getters
+    // Getters y Setters
+    @PropertyName("nombre")
     public String getNombre() { return nombre; }
-    public int getTempMaxIdeal() { return tempMaxIdeal; }
-    public int getTempMinIdeal() { return tempMinIdeal; }
-    public int getVientoMax() { return vientoMax; }
-    public int getLluviaMax() { return lluviaMax; }
-    public int getRequiereSol() { return requiereSol; }
+    @PropertyName("nombre")
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    // Metodo toString
+    @PropertyName("tempMaxIdeal")
+    public int getTempMaxIdeal() { return tempMaxIdeal; }
+    @PropertyName("tempMaxIdeal")
+    public void setTempMaxIdeal(int tempMaxIdeal) { this.tempMaxIdeal = tempMaxIdeal; }
+
+    @PropertyName("tempMinIdeal")
+    public int getTempMinIdeal() { return tempMinIdeal; }
+    @PropertyName("tempMinIdeal")
+    public void setTempMinIdeal(int tempMinIdeal) { this.tempMinIdeal = tempMinIdeal; }
+
+    @PropertyName("vientoMax")
+    public int getVientoMax() { return vientoMax; }
+    @PropertyName("vientoMax")
+    public void setVientoMax(int vientoMax) { this.vientoMax = vientoMax; }
+
+    @PropertyName("lluviaMax")
+    public int getLluviaMax() { return lluviaMax; }
+    @PropertyName("lluviaMax")
+    public void setLluviaMax(int lluviaMax) { this.lluviaMax = lluviaMax; }
+
+    @PropertyName("requiereSol")
+    public int getRequiereSol() { return requiereSol; }
+    @PropertyName("requiereSol")
+    public void setRequiereSol(int requiereSol) { this.requiereSol = requiereSol; }
+
     @Override
-    public String toString() {
-        return nombre;
-    }
+    public String toString() { return nombre; }
 }

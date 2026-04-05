@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "508202260001",
+    "project_id": "comparaclima",
+    "storage_bucket": "comparaclima.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508202260001:android:252a387189175d17be3560",
+        "android_client_info": {
+          "package_name": "com.mamr.comparaclima"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1-ZNvTfHu4dyUB2cJIO_CO7VtS9zREQs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
